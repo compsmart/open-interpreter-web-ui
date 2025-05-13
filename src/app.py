@@ -16,7 +16,11 @@ app = Flask(__name__)
 load_dotenv()
 
 # Initialize OpenAI client
-openai_api_key = os.getenv('OPENAI_API_KEY', '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')
+openai_api_key = os.getenv('OPENAI_API_KEY', '')
+if not openai_api_key:
+    print("Warning: OPENAI_API_KEY environment variable is not set. OpenAI features will not work.", file=sys.stderr)
+
+# Create the client even if the key is empty - the client will handle authentication errors when used
 openai_client = openai.OpenAI(api_key=openai_api_key)
 
 # Queue for storing messages from interpreter
@@ -400,11 +404,22 @@ def text_to_speech():
 @app.route('/openai/models', methods=['GET'])
 def openai_models():
     """Get available OpenAI models"""
+    if not openai_api_key:
+        return jsonify({"error": "OpenAI API key not configured. Please add your API key to the .env file."}), 401
+    
     try:
         models = openai_client.models.list()
         return jsonify({"models": [model.id for model in models.data]})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        error_msg = str(e)
+        status_code = 500
+        
+        # Check for common API key errors
+        if "auth" in error_msg.lower() or "api key" in error_msg.lower() or "apikey" in error_msg.lower():
+            error_msg = "Invalid or unauthorized OpenAI API key. Please check your .env file."
+            status_code = 401
+            
+        return jsonify({"error": error_msg}), status_code
 
 @app.route('/openai/completions', methods=['POST'])
 def openai_completions():
@@ -442,6 +457,15 @@ if __name__ == '__main__':
     # Default to port 5000 if not specified
     port = int(os.environ.get('PORT', 5000))
     host = os.environ.get('HOST', '0.0.0.0')
+    
+    # Check for OpenAI API key
+    if not os.getenv('OPENAI_API_KEY'):
+        print("\n" + "!"*60)
+        print("WARNING: No OpenAI API key found in environment variables.")
+        print("Many features will not work without an API key.")
+        print("Please add your OpenAI API key to the .env file:")
+        print("OPENAI_API_KEY=your_api_key_here")
+        print("!"*60 + "\n")
     
     # Initialize API settings for local models
     default_model = os.environ.get('DEFAULT_MODEL', interpreter.llm.model)
