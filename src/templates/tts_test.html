@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #333;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        
+        select, button {
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #0069d9;
+        }
+        
+        .log {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 200px;
+            overflow: auto;
+            font-family: monospace;
+            background: #f9f9f9;
+        }
+        
+        .audio-waves {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            height: 50px;
+            width: 100%;
+        }
+        
+        .audio-waves.active .wave {
+            animation: wave 1.2s infinite ease-in-out;
+        }
+        
+        .wave {
+            background-color: #007bff;
+            height: 15%;
+            width: 3px;
+            opacity: 0.7;
+            border-radius: 1px;
+        }
+        
+        .audio-waves .wave:nth-child(1) { animation-delay: 0.0s; }
+        .audio-waves .wave:nth-child(2) { animation-delay: 0.1s; }
+        .audio-waves .wave:nth-child(3) { animation-delay: 0.2s; }
+        .audio-waves .wave:nth-child(4) { animation-delay: 0.3s; }
+        .audio-waves .wave:nth-child(5) { animation-delay: 0.4s; }
+        .audio-waves .wave:nth-child(6) { animation-delay: 0.3s; }
+        .audio-waves .wave:nth-child(7) { animation-delay: 0.2s; }
+        .audio-waves .wave:nth-child(8) { animation-delay: 0.1s; }
+        .audio-waves .wave:nth-child(9) { animation-delay: 0.0s; }
+        
+        @keyframes wave {
+            0%, 100% { height: 15%; }
+            50% { height: 70%; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Text-to-Speech Test Page</h1>
+    
+    <div class="controls">
+        <h2>Test TTS API</h2>
+        <textarea id="text-input" placeholder="Enter text to speak...">This is a test of the OpenAI text to speech API. If you can hear this, everything is working correctly.</textarea>
+        <div>
+            <select id="voice-select">
+                <option value="alloy">Alloy</option>
+                <option value="echo">Echo</option>
+                <option value="fable">Fable</option>
+                <option value="onyx">Onyx</option>
+                <option value="nova">Nova</option>
+                <option value="shimmer">Shimmer</option>
+            </select>
+            <button id="speak-button">Speak Text</button>
+            <button id="native-speak-button">Use Browser Speech</button>
+        </div>
+    </div>
+    
+    <div class="visualization">
+        <h2>Audio Visualization</h2>
+        <div class="audio-waves" id="audio-waves">
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+        </div>
+    </div>
+    
+    <div class="log-container">
+        <h2>Debug Log</h2>
+        <div class="log" id="log"></div>
+    </div>
+    
+    <script>
+        // Audio elements
+        let audioElement = null;
+        let isPlaying = false;
+        
+        // UI elements
+        const textInput = document.getElementById('text-input');
+        const voiceSelect = document.getElementById('voice-select');
+        const speakButton = document.getElementById('speak-button');
+        const nativeSpeakButton = document.getElementById('native-speak-button');
+        const audioWaves = document.getElementById('audio-waves');
+        const logElement = document.getElementById('log');
+        
+        // Logging function
+        function log(message) {
+            const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[TTS-Test] ${message}`);
+        }
+        
+        // Update visualization
+        function updateVisualization(active) {
+            isPlaying = active;
+            if (active) {
+                audioWaves.classList.add('active');
+            } else {
+                audioWaves.classList.remove('active');
+            }
+        }
+        
+        // Initialize audio element
+        function initAudio() {
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.removeAttribute('src');
+            }
+            
+            audioElement = new Audio();
+            
+            // Add event listeners
+            audioElement.addEventListener('play', () => {
+                log('Audio started playing');
+                updateVisualization(true);
+            });
+            
+            audioElement.addEventListener('pause', () => {
+                log('Audio paused');
+                updateVisualization(false);
+            });
+            
+            audioElement.addEventListener('ended', () => {
+                log('Audio playback ended');
+                updateVisualization(false);
+            });
+            
+            audioElement.addEventListener('error', (e) => {
+                log(`Audio error: ${e.target.error?.message || 'Unknown error'}`);
+                updateVisualization(false);
+            });
+            
+            return audioElement;
+        }
+        
+        // Speak text using OpenAI API
+        async function speakText() {
+            const text = textInput.value.trim();
+            const voice = voiceSelect.value;
+            
+            if (!text) {
+                log('No text to speak');
+                return;
+            }
+            
+            log(`Speaking text with voice: ${voice}`);
+            
+            try {
+                // Request speech from server
+                log('Sending request to text-to-speech API');
+                const response = await fetch('/api/text-to-speech', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        voice: voice
+                    })
+                });
+                
+                const data = await response.json();
+                log(`API response: ${data.success ? 'Success' : 'Failed'}`);
+                
+                if (data.success && data.audio) {
+                    // Create audio from base64
+                    const audioSrc = `data:audio/mp3;base64,${data.audio}`;
+                    log('Audio data received, setting up playback');
+                    
+                    // Initialize new audio element
+                    const audio = initAudio();
+                    audio.src = audioSrc;
+                    
+                    // Log debug file location if available
+                    if (data.debug_file) {
+                        log(`Debug file: ${data.debug_file}`);
+                    }
+                    
+                    // Attempt to play
+                    try {
+                        log('Starting audio playback...');
+                        await audio.play();
+                        log('Playback started successfully');
+                    } catch (playError) {
+                        log(`Playback error: ${playError.message}`);
+                        
+                        // Try a different approach - create a new element
+                        log('Trying alternative approach with new audio element');
+                        const newAudio = new Audio(audioSrc);
+                        newAudio.onplay = () => updateVisualization(true);
+                        newAudio.onpause = () => updateVisualization(false);
+                        newAudio.onended = () => updateVisualization(false);
+                        
+                        try {
+                            await newAudio.play();
+                            log('Alternative playback successful');
+                        } catch (e) {
+                            log(`Alternative playback failed: ${e.message}`);
+                        }
+                    }
+                } else {
+                    log(`Error: ${data.error || 'Unknown error generating speech'}`);
+                }
+            } catch (error) {
+                log(`Error: ${error.message}`);
+            }
+        }
+        
+        // Use browser's native speech synthesis
+        function useNativeSpeech() {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                log('No text to speak');
+                return;
+            }
+            
+            log('Using browser speech synthesis');
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                utterance.onstart = () => {
+                    log('Browser speech started');
+                    updateVisualization(true);
+                };
+                
+                utterance.onend = () => {
+                    log('Browser speech ended');
+                    updateVisualization(false);
+                };
+                
+                utterance.onerror = (e) => {
+                    log(`Browser speech error: ${e.error}`);
+                    updateVisualization(false);
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                log('Browser speech synthesis not supported');
+            }
+        }
+        
+        // Event listeners
+        speakButton.addEventListener('click', speakText);
+        nativeSpeakButton.addEventListener('click', useNativeSpeech);
+        
+        // Initialization
+        log('TTS Test page loaded');
+        initAudio();
+    </script>
+</body>
+</html>

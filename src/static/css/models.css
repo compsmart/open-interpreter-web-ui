@@ -1,0 +1,81 @@
+/* Additional styles for models section */
+.section-label {
+    font-size: 13px;
+    color: #aaa;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.models-list {
+    background-color: #333;
+    border-radius: 6px;
+    padding: 8px;
+    max-height: 120px;
+    overflow-y: auto;
+    border: 1px solid #444;
+}
+
+.model-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    background-color: #3a3a3a;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 13px;
+}
+
+.model-item:hover {
+    background-color: #444;
+}
+
+.model-item.selected {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.loading-models {
+    color: #999;
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.api-hint {
+    margin-top: 4px;
+    color: #888;
+    font-size: 12px;
+}
+
+.model-item .model-id {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Refresh button for models list */
+.refresh-models {
+    background-color: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-left: auto;
+}
+
+.refresh-models:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: #ccc;
+}
+
+.refresh-models i {
+    margin-right: 4px;
+}

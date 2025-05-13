@@ -1,0 +1,118 @@
+/**
+ * Code panel and code output styling
+ */
+
+.code-panel {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--code-bg);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.code-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: var(--code-header-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.code-panel-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.code-panel-tabs {
+    display: flex;
+    gap: 16px;
+}
+
+.code-panel-tab {
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.code-panel-tab.active {
+    background-color: var(--accent-color-light);
+    color: var(--accent-color);
+}
+
+.code-content-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: auto;
+    padding: 12px;
+}
+
+.code-block {
+    font-family: var(--code-font);
+    font-size: 0.9rem;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: var(--code-block-bg);
+    overflow-x: auto;
+    white-space: pre;
+    margin-bottom: 8px;
+}
+
+.output-block {
+    font-family: var(--code-font);
+    font-size: 0.9rem;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: var(--output-bg);
+    white-space: pre-wrap;
+    color: var(--output-text);
+    min-height: 30px;
+}
+
+/* Console-specific output styling */
+.console-output {
+    font-family: var(--code-font);
+    font-size: 0.9rem;
+    color: var(--console-text);
+    background-color: var(--console-bg);
+    padding: 8px;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    border-left: 3px solid var(--console-border);
+    margin-top: 8px;
+}
+
+/* Console prefix styling */
+.console-output::first-line {
+    color: var(--console-prefix);
+    font-weight: 600;
+}
+
+/* Style for error outputs */
+.error-output {
+    color: var(--error-text);
+    background-color: var(--error-bg);
+    border-left: 3px solid var(--error-border);
+}
+
+/* Active line indicator */
+.active-line-indicator {
+    background-color: var(--active-line-bg);
+    color: var(--active-line-text);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin: 4px 0;
+    display: inline-block;
+}
+
+/* Code execution timing information */
+.execution-time {
+    color: var(--execution-time);
+    font-size: 0.8rem;
+    text-align: right;
+    margin-top: 6px;
+    font-style: italic;
+}

@@ -1,0 +1,354 @@
+/* 
+ * New Panel Layout - Side-by-side collapsible panels opening from the right
+ * This file defines the new layout for panels that slide in from right to left
+ * and can be reordered by clicking on them in different sequences
+ */
+
+/* CSS Variables for customization */
+:root {
+    --panel-width: 400px;
+    --panel-max-width: 500px;
+    --panel-width-tablet: 350px;
+    --panel-width-mobile: 300px;
+    --header-height: 42px;
+    --nav-height: 60px;
+    --panel-transition-speed: 0.3s;
+    --panel-z-index-base: 100;
+    --secondary-panel-z-index: 100;
+    /* z-index for secondary panels */
+    --avatar-panel-z-index: 200;
+    /* Higher z-index for avatar panel to always be on right */
+}
+
+/* Main layout container */
+.content-area {
+    display: flex;
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* When panel is open */
+.content-area.with-panel {
+    overflow: visible;
+}
+
+/* Left side (chat) */
+.chat-panel {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: width var(--panel-transition-speed) ease,
+        max-width var(--panel-transition-speed) ease,
+        margin-right var(--panel-transition-speed) ease;
+    overflow: hidden;
+}
+
+/* Panel container (right side panels) */
+.panels-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 0;
+    /* Takes no space in the flex layout */
+    display: flex;
+    flex-direction: row-reverse;
+    /* Reverse order so newer panels appear on the right */
+    overflow: visible;
+    pointer-events: none;
+    /* Let events pass through the container, but not the panels */
+}
+
+/* Ensure panels receive pointer events */
+.panels-container .panel {
+    pointer-events: auto;
+}
+
+/* Individual panel base styles */
+.panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: var(--panel-width);
+    max-width: var(--panel-max-width);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-color);
+    border-left: 1px solid var(--border-color);
+    transition: transform var(--panel-transition-speed) ease,
+        width var(--panel-transition-speed) ease,
+        opacity var(--panel-transition-speed) ease,
+        right var(--panel-transition-speed) ease;
+    overflow: hidden;
+    z-index: var(--panel-z-index-base);
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    /* Add shadow for better visual separation */
+}
+
+/* Panel states */
+.panel.visible {
+    transform: translateX(0);
+}
+
+.panel.hidden {
+    transform: translateX(100%);
+    z-index: calc(var(--panel-z-index-base) - 10);
+}
+
+.panel.collapsed {
+    width: 0;
+    border: none;
+    overflow: hidden;
+}
+
+/* Panel positioning - Avatar panel always on the right */
+#avatar-panel.visible {
+    z-index: var(--avatar-panel-z-index);
+    transform: translateX(0);
+    right: 0;
+    transition: all var(--panel-transition-speed) ease;
+}
+
+/* Secondary panels position depends on avatar panel visibility */
+.panel.visible:not(#avatar-panel) {
+    transform: translateX(0);
+    transition: all var(--panel-transition-speed) ease;
+    /* By default overlap chat panel (will be adjusted by JS for positioning) */
+    z-index: var(--panel-z-index-base);
+}
+
+/* Ensure panels are fully outside the chat container */
+.panels-container .panel {
+    position: fixed;
+    /* Use fixed positioning to ensure it's always relative to viewport */
+    top: var(--nav-height);
+    /* Account for navbar height */
+    height: calc(100vh - var(--nav-height));
+    /* Full height minus navbar */
+}
+
+/* All panels use the same base styling for visibility */
+.panel.visible {
+    transform: translateX(0);
+    transition: all var(--panel-transition-speed) ease;
+}
+
+/* Handle any excess panels by hiding them (should not occur with the 2-panel limit) */
+.panel.excess {
+    display: none;
+}
+
+/* Panel header */
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--bg-darker);
+    border-bottom: 1px solid var(--border-color);
+    height: var(--header-height);
+    min-height: var(--header-height);
+}
+
+.panel-header h3 {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.panel-header h3 i {
+    margin-right: 8px;
+    color: var(--accent-color);
+}
+
+.panel-controls {
+    display: flex;
+    gap: 5px;
+}
+
+/* Panel content */
+.panel-content {
+    flex: 1;
+    overflow: auto;
+    padding: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) var(--bg-darker);
+}
+
+.panel-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+    background: var(--bg-darker);
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+    background-color: var(--accent-color);
+    border-radius: 4px;
+}
+
+/* Top navigation panel buttons */
+.navbar-panel-buttons {
+    display: flex;
+    gap: 8px;
+    margin-right: 10px;
+}
+
+.panel-button {
+    border: none;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.panel-button:hover {
+    filter: brightness(1.1);
+}
+
+.panel-button.active {
+    box-shadow: 0 0 0 2px white;
+    filter: brightness(1.1);
+}
+
+/* Style for popped-out panel buttons */
+.panel-button.active.popped-out {
+    box-shadow: 0 0 0 2px #ffcc00;
+    position: relative;
+    animation: pulse 1.5s infinite;
+}
+
+/* Pulse animation for popped-out panels */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 2px #ffcc00;
+    }
+
+    50% {
+        box-shadow: 0 0 0 3px #ffaa00;
+    }
+
+    100% {
+        box-shadow: 0 0 0 2px #ffcc00;
+    }
+}
+
+.panel-button i {
+    font-size: 14px;
+}
+
+/* Panel button colors */
+.avatar-btn {
+    background-color: #7e57c2;
+}
+
+.code-output-btn {
+    background-color: #26a69a;
+}
+
+/* Combined Code and Output Panel */
+.code-output-panel .panel-content {
+    padding: 0;
+    /* Remove padding for better space utilization */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Handle scrolling within sections */
+}
+
+.code-section,
+.output-section {
+    display: flex;
+    flex-direction: column;
+    height: 50%;
+    overflow: hidden;
+    position: relative;
+}
+
+.section-title {
+    padding: 8px 15px;
+    background-color: var(--bg-darker);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.code-container,
+.output-container {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+}
+
+.code-block,
+.output-block {
+    padding: 15px;
+    margin: 0;
+    height: 100%;
+    overflow: auto;
+    font-family: monospace;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+.code-block {
+    background-color: var(--code-bg);
+    color: var(--code-text);
+}
+
+.output-block {
+    background-color: var(--output-bg);
+    color: var(--output-text);
+}
+
+.knowledge-btn {
+    background-color: #ffb74d;
+}
+
+.history-btn {
+    background-color: #42a5f5;
+}
+
+/* Popped-out panel styles */
+.panel.popped-out {
+    opacity: 0.5;
+    pointer-events: none;
+    background-color: var(--bg-darker);
+}
+
+.panel.popped-out .panel-header {
+    background-color: var(--border-color);
+}
+
+.panel.popped-out .panel-content {
+    display: none;
+}
+
+
+@media (max-width: 480px) {
+    .panel {
+        width: 100%;
+    }
+
+    .navbar-panel-buttons {
+        gap: 4px;
+    }
+
+    .panel-button {
+        padding: 4px 6px;
+    }
+}

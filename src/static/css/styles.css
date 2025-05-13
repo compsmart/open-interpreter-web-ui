@@ -1,0 +1,804 @@
+/* Main layout and reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #4a90e2;
+    --primary-hover: #357abf;
+    --sidebar-bg: #2c2c2c;
+    --sidebar-text: #ffffff;
+    --navbar-bg: #2c2c2c;
+    --navbar-text: #ffffff;
+    --light-bg: #f5f5f5;
+    --chat-bg: #ffffff;
+    --code-bg: #1e1e1e; /* Used for dedicated code panel */
+    --code-text: #d4d4d4; /* Used for dedicated code panel */
+    --output-bg: #282c34; /* Used for dedicated output panel */
+    --output-text: #abb2bf; /* Used for dedicated output panel */
+    --border-color: #ddd;
+    --danger-color: #e74c3c;
+    --success-color: #2ecc71;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --border-radius: 8px;
+    --animation-speed: 0.3s;
+    
+    /* Panel system variables */
+    --bg-color: #f8f8f8;
+    --bg-darker: #e7e7e7;
+    --text-color: #333;
+    --text-muted: #666;
+    --accent-color: #4a90e2;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-bg);
+    color: #333;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Top Navigation Bar */
+.top-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--navbar-bg);
+    color: var(--navbar-text);
+    padding: 0 20px;
+    height: 60px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.top-navbar .left-section,
+.top-navbar .right-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.navbar-title {
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-left: 10px;
+}
+
+.action-btn-sm {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+.action-btn-sm i {
+    margin-right: 6px;
+}
+
+.action-btn-sm:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Main Container */
+.main-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    transition: all var(--animation-speed) ease;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 300px;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+    transition: all var(--animation-speed) ease;
+    position: relative;
+    z-index: 90;
+    flex-shrink: 0;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-100%);
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.brand {
+    margin-bottom: 24px;
+}
+
+.brand h1 {
+    font-size: 22px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.brand-dot {
+    color: var(--primary-color);
+    margin-right: 8px;
+    font-size: 24px;
+}
+
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-section {
+    margin-top: 24px;
+}
+
+.settings-section h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #ccc;
+}
+
+/* Settings styles */
+.setting {
+    margin-bottom: 16px;
+}
+
+.setting label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #bbb;
+}
+
+.setting select,
+.setting input[type="text"],
+.setting input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid #444;
+    background-color: #3a3a3a;
+    color: #fff;
+    font-size: 14px;
+}
+
+.setting.checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.setting.checkbox label {
+    margin-bottom: 0;
+    margin-left: 8px;
+}
+
+/* Buttons and controls */
+.action-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.action-btn i {
+    margin-right: 8px;
+}
+
+.action-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.action-btn:active {
+    transform: scale(0.98);
+}
+
+/* Content Area */
+.content-area {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    transition: padding-left var(--animation-speed) ease;
+}
+
+/* When sidebar is collapsed, remove margin from content-area */
+.sidebar.collapsed + .content-area {
+    padding-left: 0;
+}
+
+/* Chat Panel */
+.chat-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: all var(--animation-speed) ease;
+}
+
+.chat-container {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: var(--chat-bg);
+    border-radius: var(--border-radius);
+    margin: 16px;
+    margin-bottom: 0;
+    box-shadow: var(--shadow);
+    height: calc(100% - 92px); /* Account for input area height */
+}
+
+.welcome-message {
+    text-align: center;
+    padding: 40px 0;
+    color: #888;
+}
+
+.welcome-message h2 {
+    color: #333;
+    margin-bottom: 12px;
+    font-size: 24px;
+}
+
+.message {
+    margin-bottom: 20px;
+    padding: 16px;
+    border-radius: var(--border-radius);
+    max-width: 88%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-message {
+    background-color: #e7f2fd;
+    margin-left: auto;
+    color: #333;
+    border-top-right-radius: 4px;
+}
+
+.ai-message {
+    background-color: #f8f9fa;
+    margin-right: auto;
+    border-top-left-radius: 4px;
+}
+
+.message-content {
+    margin: 0;
+}
+
+/* Code block styling within chat messages */
+.message .code-block {
+    background-color: #282c34; /* Darker bg for chat code blocks */
+    color: #abb2bf;
+    padding: 10px; /* Simpler padding */
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 10px 0; /* Standard margin */
+    /* No position:relative or padding-left for line numbers here */
+}
+
+
+/* Input area */
+.input-area {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background-color: var(--chat-bg);
+    margin: 0 16px 16px 16px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+#user-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    resize: none;
+    height: 60px;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+    transition: border-color 0.2s ease;
+}
+
+#user-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+#send-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-left: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+#send-button:hover {
+    background-color: var(--primary-hover);
+    transform: scale(1.05);
+}
+
+#send-button:active {
+    transform: scale(0.95);
+}
+
+/* Code Panel (dedicated panel for code and output) */
+.code-panel {
+    width: 50%;
+    height: 100%;
+    background-color: #f5f5f5; /* Light background for the panel itself */
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: width var(--animation-speed) ease;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+.code-panel.collapsed {
+    width: 0;
+    min-width: 0;
+    border-left: none;
+    overflow: hidden;
+}
+
+.code-panel.collapsed + .chat-panel,
+.chat-panel:not(.code-panel + .chat-panel) {
+    width: 100%;
+}
+
+.code-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e7e7e7;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.code-panel-header h3 {
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #444;
+}
+
+.panel-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.icon-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.top-navbar .icon-btn {
+    color: var(--sidebar-text);
+}
+
+.top-navbar .icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.code-panel-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Already here */
+    height: calc(100% - 49px); /* Account for header height */
+    border-radius: 6px; /* Added from new styles */
+}
+
+.code-section, .output-section {
+    flex: 1;
+    padding: 16px; /* Padding for the section itself */
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--code-bg); /* Section background */
+}
+
+.code-section {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.output-section {
+    background-color: var(--output-bg); /* Output section has distinct bg */
+}
+
+
+.section-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ccc; /* Light color for dark background */
+    margin-bottom: 8px; /* Added margin */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Styles for .code-block and .output-block within .code-panel */
+.code-panel .code-block,
+.code-panel .output-block {
+    background-color: transparent; /* Inherit from section or transparent if section has image/gradient */
+    color: var(--code-text);
+    border-radius: 6px;
+    padding: 16px; /* Default padding */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-x: auto;
+    flex: 1;
+    margin: 0; /* No margin, fills the section */
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6; /* Adjusted line height */
+    position: relative; /* For line numbers and other potential absolute elements */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow */
+    min-height: 1em; /* Minimum height */
+}
+
+/* Specific for .code-block in code panel (line numbers etc.) */
+.code-panel .code-block {
+    padding-left: 3.5em !important; /* Make space for line numbers */
+}
+
+.code-panel .output-block {
+    color: var(--output-text);
+    /* Output block might not need the enhanced padding for line numbers, so it's separate */
+}
+
+
+/* NEW Styles for Code Panel Line Numbers and Enhanced Code Display */
+.code-container { /* Optional wrapper, if used */
+    position: relative;
+    display: flex;
+    overflow: hidden;
+}
+
+.line-numbers {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0; /* Stretches full height of parent */
+    padding: 16px 8px; /* Padding inside line number column */
+    color: #6e7681; /* Line number text color */
+    user-select: none;
+    text-align: right;
+    counter-reset: line; /* For CSS counters */
+    /* background-color: rgba(0,0,0,0.1); Optional: slightly different bg for line number column */
+    border-top-left-radius: 6px; /* Match parent's border radius */
+    border-bottom-left-radius: 6px;
+    z-index: 1; /* Above code background, below other things */
+    font-family: monospace; /* Consistent font */
+    font-size: 14px; /* Match code font size */
+    line-height: 1.6; /* Match code line height */
+}
+
+.line-number {
+    counter-increment: line; /* Increment for each line */
+    display: block;
+    /* line-height is inherited from .line-numbers */
+    /* font-size is inherited */
+    position: relative; /* For active line indicator */
+    transition: background-color 0.2s ease-in-out;
+}
+
+.line-number::before {
+    content: counter(line); /* Display the count */
+}
+
+.line-number.active-line {
+    background-color: rgba(255, 255, 100, 0.2); /* Highlight active line background */
+    color: #ffffff; /* Active line number text color */
+    font-weight: bold;
+}
+
+.line-number.active-line::before { /* Actual number part */
+    content: counter(line); /* Ensure number still shows */
+}
+.line-number.active-line::after { /* Blinking cursor/arrow */
+    content: "▶";
+    position: absolute;
+    left: -14px; /* Position to the left of the number */
+    top: 0; /* Align with line */
+    color: #ffcc00; /* Arrow color */
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 0.2; }
+    50% { opacity: 1; }
+    100% { opacity: 0.2; }
+}
+
+/* NEW Syntax Highlighting Token Colors for .code-block in .code-panel */
+.code-panel .code-block .token.keyword { color: #ff79c6; }
+.code-panel .code-block .token.string { color: #f1fa8c; }
+.code-panel .code-block .token.comment { color: #6272a4; font-style: italic; }
+.code-panel .code-block .token.function { color: #50fa7b; }
+.code-panel .code-block .token.number { color: #bd93f9; }
+.code-panel .code-block .token.operator { color: #ff79c6; }
+.code-panel .code-block .token.punctuation { color: #f8f8f2; }
+.code-panel .code-block .token.class-name { color: #8be9fd; }
+.code-panel .code-block .token.boolean { color: #bd93f9; }
+.code-panel .code-block .token.property { color: #8be9fd; }
+.code-panel .code-block .token.tag { color: #ff79c6; }
+.code-panel .code-block .token.attr-name { color: #50fa7b; }
+.code-panel .code-block .token.attr-value { color: #f1fa8c; }
+.code-panel .code-block .token.variable { color: #f8f8f2; }
+.code-panel .code-block .token.parameter { color: #ffb86c; }
+/* Add more token styles as needed from your theme (e.g., Dracula) */
+
+
+.resize-handle {
+    position: absolute;
+    width: 5px;
+    height: 100%;
+    left: 0;
+    top: 0;
+    cursor: ew-resize;
+    background: transparent;
+}
+
+/* Code execution output styles (legacy, might be replaced by .output-block) */
+.execution-output {
+    background-color: #f5f5f5;
+    border-left: 3px solid #4a90e2;
+    padding: 10px;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+    overflow-x: auto;
+    white-space: pre-wrap;
+}
+
+/* Markdown content styling */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
+
+.markdown-content p {
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.markdown-content pre { /* This styles the <pre> wrapper for code in markdown */
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: auto;
+    background-color: #282c34; /* Same as .message .code-block */
+    padding: 10px;
+}
+
+.markdown-content code { /* Inline code */
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em; /* Slightly smaller for inline */
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+.markdown-content pre > code { /* Code within <pre> in markdown */
+    background-color: transparent; /* Pre already has bg */
+    padding: 0;
+    font-size: 14px; /* Reset to standard code size */
+    color: #abb2bf; /* Match .message .code-block text color */
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin-left: 24px;
+    margin-bottom: 16px;
+}
+
+.markdown-content li {
+    margin-bottom: 8px;
+}
+
+/* Error message */
+.error {
+    color: var(--danger-color);
+    background-color: #ffebee;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--danger-color);
+    margin: 12px 0;
+}
+
+/* Loading indicator */
+.loading {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.loading div {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: 0 4px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loading div:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.loading div:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .content-area {
+        flex-direction: column;
+    }
+
+    .chat-panel, .code-panel {
+        width: 100% !important; /* Important to override any inline styles */
+        height: 50%;
+    }
+
+    .code-panel {
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .sidebar.collapsed + .content-area {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1000;
+    }
+}
+
+/* Transitions and animations */
+.transition-all {
+    transition: all var(--animation-speed) ease;
+}
+
+/* Thinking section styles */
+.thinking-section {
+    margin-top: 12px;
+    margin-bottom: 12px;
+    border-top: 1px dashed #ccc;
+    padding-top: 12px;
+    font-size: 0.9em;
+}
+
+.thinking-section.hidden {
+    display: none;
+}
+
+.thinking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 8px;
+    background-color: #f7f7f7;
+    border-radius: 4px;
+}
+
+.thinking-toggle {
+    background: none;
+    border: none;
+    color: #555;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.thinking-toggle i {
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+}
+
+.thinking-timer {
+    color: #777;
+    font-size: 0.9em;
+    font-family: monospace;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: #eee;
+}
+
+.thinking-content {
+    background-color: #f5f5f5;
+    padding: 12px;
+    border-radius: 4px;
+    border-left: 3px solid #ddd;
+    margin-top: 8px;
+    font-family: monospace;
+    line-height: 1.5;
+    max-height: 400px;
+    overflow-y: auto;
+    color: #666;
+}
+
+.thinking-content.hidden {
+    display: none;
+}

@@ -1,0 +1,42 @@
+/* CSS fixes for specific UI issues */
+
+/* Fix for toggle-sidebar button */
+#toggle-sidebar {
+    z-index: 110;
+    /* Ensure button is above other elements */
+    pointer-events: auto !important;
+    /* Force pointer events */
+    cursor: pointer !important;
+    /* Ensure cursor shows it's clickable */
+}
+
+/* Fix for sidebar transition */
+.sidebar {
+    will-change: transform;
+    /* Optimize transitions */
+    transition: all 0.3s ease !important;
+    /* Force transition */
+}
+
+/* Explicit styles to override the collapsed state */
+.sidebar:not(.collapsed) {
+    transform: translateX(0) !important;
+    width: 300px !important;
+    padding: 20px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Additional tooltip fixes */
+.tooltiptext {
+    pointer-events: none !important;
+    /* Prevent tooltip from capturing clicks */
+}
+
+/* Ensure all buttons inside tooltip wrappers are clickable */
+.tooltip-wrapper button,
+button.icon-btn {
+    position: relative;
+    /* Ensure proper stacking context */
+}

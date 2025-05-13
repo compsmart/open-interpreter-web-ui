@@ -1,0 +1,291 @@
+/* Text to Speech Panel Styles */
+
+.speech-panel {
+    height: 100px;
+    overflow: hidden;
+    background-color: var(--bg-darker);
+    border-top: 1px solid var(--border-color);
+    transition: height 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 10px;
+}
+
+.speech-panel.expanded {
+    height: 250px;
+    padding: 10px;
+}
+
+.speech-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.speech-panel-header h3 {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.speech-panel-header h3 i {
+    margin-right: 8px;
+    color: var(--accent-color);
+}
+
+.panel-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.speech-panel-content {
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    flex: 1;
+}
+
+.avatar-controls {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: auto;
+}
+
+.avatar-controls-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.avatar-controls-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 5px;
+    padding: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.avatar-controls-bottom button {
+    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-lighter);
+}
+
+.avatar-controls-bottom button:hover {
+    background-color: var(--accent-color-light);
+}
+
+.voice-select {
+    padding: 5px;
+    border-radius: 4px;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 12px;
+    width: 100px;
+}
+
+.audio-visualization {
+    flex: 1;
+    height: 40px;
+    background-color: var(--bg-color);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.audio-visualization.active .audio-waves {
+    animation: wave-animation 1.2s infinite ease-in-out;
+}
+
+.audio-waves {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 100%;
+    width: 70%;
+}
+
+.audio-waves .wave {
+    background-color: var(--accent-color);
+    height: 15%;
+    width: 3px;
+    opacity: 0.7;
+    border-radius: 1px;
+}
+
+.audio-waves.active .wave:nth-child(1) {
+    animation: wave 1.2s infinite ease-in-out 0.0s;
+}
+
+.audio-waves.active .wave:nth-child(2) {
+    animation: wave 1.2s infinite ease-in-out 0.1s;
+}
+
+.audio-waves.active .wave:nth-child(3) {
+    animation: wave 1.2s infinite ease-in-out 0.2s;
+}
+
+.audio-waves.active .wave:nth-child(4) {
+    animation: wave 1.2s infinite ease-in-out 0.3s;
+}
+
+.audio-waves.active .wave:nth-child(5) {
+    animation: wave 1.2s infinite ease-in-out 0.4s;
+}
+
+.audio-waves.active .wave:nth-child(6) {
+    animation: wave 1.2s infinite ease-in-out 0.3s;
+}
+
+.audio-waves.active .wave:nth-child(7) {
+    animation: wave 1.2s infinite ease-in-out 0.2s;
+}
+
+.audio-waves.active .wave:nth-child(8) {
+    animation: wave 1.2s infinite ease-in-out 0.1s;
+}
+
+.audio-waves.active .wave:nth-child(9) {
+    animation: wave 1.2s infinite ease-in-out 0.0s;
+}
+
+.audio-placeholder-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+@keyframes wave {
+
+    0%,
+    100% {
+        height: 15%;
+    }
+
+    50% {
+        height: 70%;
+    }
+}
+
+/* Tooltip styling */
+.tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+    /* Ensure the wrapper doesn't interfere with button clicks */
+    pointer-events: none;
+}
+
+/* Make sure the button inside still captures clicks */
+.tooltip-wrapper button {
+    pointer-events: auto;
+}
+
+.tooltip-wrapper .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: var(--bg-darker);
+    color: var(--text-color);
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    border: 1px solid var(--border-color);
+    font-size: 12px;
+}
+
+.tooltip-wrapper:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Keep old tooltip class for backward compatibility */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: var(--bg-darker);
+    color: var(--text-color);
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    border: 1px solid var(--border-color);
+    font-size: 12px;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Avatar styles */
+.avatar-container {
+    width: 100%;
+    height: 260px;
+    position: relative;
+    margin-bottom: 10px;
+    background-color: var(--bg-color);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#avatar-display {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    /* Scale factor to zoom in on the face */
+    transform: scale(1.2) translateY(-10%);
+}
+
+#avatar-loading {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: var(--text-color);
+    font-size: 14px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: block;
+}

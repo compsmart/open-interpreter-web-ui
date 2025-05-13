@@ -1,0 +1,303 @@
+/* 
+ * Panel Layout - Redesigned panel system with right-side collapsible panels
+ * This file defines the layout for collapsible panels on the right side,
+ * with the main chat on the left side
+ *
+ * Panel Structure:
+ * - Main container (.panels-container)
+ *   - Avatar panel at top
+ *   - Code panel
+ *   - Output panel
+ *   - Future Knowledge Base panel (placeholder)
+ *   - Future Chat History panel (placeholder)
+ *
+ * Features:
+ * - All panels are individually collapsible
+ * - Entire right section is collapsible
+ * - Panel states are saved in localStorage
+ * - Responsive design for different screen sizes
+ */
+
+/* CSS Variables for customization */
+:root {
+    --panel-container-width: 450px;
+    --panel-container-max-width: 55%;
+    --panel-container-width-tablet: 380px;
+    --panel-container-width-mobile: 320px;
+
+    --avatar-panel-height: 250px;
+    --code-panel-height: calc(50% - 125px);
+    --output-panel-height: calc(50% - 125px);
+    --future-panel-height: 200px;
+
+    --header-height: 42px;
+}
+
+/* Main layout container with split design */
+.content-area {
+    display: flex;
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Left side (chat) */
+.chat-panel {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: all var(--animation-speed) ease;
+    overflow: hidden;
+}
+
+/* Right side panels container */
+.panels-container {
+    display: flex;
+    flex-direction: column;
+    width: var(--panel-container-width);
+    min-width: 0;
+    max-width: var(--panel-container-max-width);
+    height: 100%;
+    transition: width var(--animation-speed) ease;
+    position: relative;
+    border-left: 1px solid var(--border-color);
+    background-color: var(--bg-darker);
+}
+
+.panels-container.collapsed {
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+    border-left: none;
+}
+
+/* Toggle button for the entire right panel section */
+.toggle-panels-container {
+    position: absolute;
+    left: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    background-color: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    color: var(--text-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Panel base styles */
+.panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: height var(--animation-speed) ease, opacity 0.15s ease;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    margin-top: 10px
+}
+
+/* Add slight opacity change for smoother transitions */
+.panel.collapsed {
+    opacity: 0.95;
+}
+
+/* Panel header */
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--bg-darker);
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+.panel-header h3 {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.panel-header h3 i {
+    margin-right: 8px;
+    color: var(--accent-color);
+}
+
+.panel-controls {
+    display: flex;
+    gap: 5px;
+}
+
+/* Panel content */
+.panel-content {
+    flex: 1;
+    overflow: auto;
+    padding: 15px;
+    transition: height var(--animation-speed) ease;
+    scroll-behavior: smooth;
+    /* For Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) var(--bg-darker);
+}
+
+/* For Chrome, Edge, and Safari */
+.panel-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+    background: var(--bg-darker);
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+    background-color: var(--accent-color);
+    border-radius: 4px;
+}
+
+/* Avatar panel (specific styles) */
+.avatar-panel {
+    height: var(--avatar-panel-height);
+}
+
+.avatar-panel.collapsed {
+    height: var(--header-height);
+    /* Just the header height */
+}
+
+.avatar-panel .panel-content {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.avatar-container {
+    width: 100%;
+    height: 180px;
+    position: relative;
+    background-color: var(--bg-color);
+    overflow: hidden;
+}
+
+/* Code panel (specific styles) */
+.code-panel {
+    height: var(--code-panel-height);
+    /* Half remaining space minus half avatar panel */
+}
+
+.code-panel.collapsed {
+    height: var(--header-height);
+}
+
+.code-section {
+    background-color: var(--code-bg);
+    color: var(--code-text);
+    height: 100%;
+    overflow: auto;
+    position: relative;
+}
+
+/* Output panel (specific styles) */
+.output-panel {
+    height: var(--output-panel-height);
+    /* Half remaining space minus half avatar panel */
+}
+
+.output-panel.collapsed {
+    height: var(--header-height);
+}
+
+.output-section {
+    background-color: var(--output-bg);
+    color: var(--output-text);
+    height: 100%;
+    overflow: auto;
+    position: relative;
+}
+
+/* Knowledge base panel (for future use) */
+.knowledge-panel {
+    height: var(--future-panel-height);
+}
+
+.knowledge-panel.collapsed {
+    height: var(--header-height);
+}
+
+/* Chat history panel (for future use) */
+.history-panel {
+    height: var(--future-panel-height);
+}
+
+.history-panel.collapsed {
+    height: var(--header-height);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .panels-container {
+        width: var(--panel-container-width-tablet);
+    }
+}
+
+@media (max-width: 768px) {
+    .panels-container {
+        position: absolute;
+        right: 0;
+        height: 100%;
+        width: var(--panel-container-width-mobile);
+        z-index: 100;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        transform: translateX(0);
+        transition: transform var(--animation-speed) ease, width var(--animation-speed) ease;
+    }
+
+    .panels-container.collapsed {
+        transform: translateX(100%);
+    }
+
+    .toggle-panels-container {
+        left: -20px;
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .chat-panel {
+        min-width: 100%;
+    }
+
+    .panels-container {
+        width: 100%;
+    }
+}
+
+/* Popped-out panel styles */
+.panel.popped-out {
+    opacity: 0.5;
+    pointer-events: none;
+    background-color: var(--bg-darker);
+}
+
+.panel.popped-out .panel-header {
+    background-color: var(--border-color);
+}
+
+.panel.popped-out .panel-content {
+    display: none;
+}
+
+.panel.popped-out .panel-pop-out-btn i {
+    color: var(--accent-color);
+}

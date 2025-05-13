@@ -1,0 +1,145 @@
+/**
+ * Knowledge Base Panel - Styles for the knowledge base panel
+ */
+
+.knowledge-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: height var(--animation-speed) ease;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    height: 200px;
+}
+
+.knowledge-panel.collapsed {
+    height: 42px;
+}
+
+.knowledge-search {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.knowledge-search input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.knowledge-search button {
+    margin-left: 8px;
+    padding: 8px 12px;
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.knowledge-list {
+    flex: 1;
+    overflow-y: auto;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.knowledge-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+.knowledge-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.knowledge-item:last-child {
+    border-bottom: none;
+}
+
+.knowledge-item-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.knowledge-item-preview {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/**
+ * Chat History Panel - Styles for the chat history panel
+ */
+
+.history-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: height var(--animation-speed) ease;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    height: 200px;
+}
+
+.history-panel.collapsed {
+    height: 42px;
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.history-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.history-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.history-item i {
+    margin-right: 10px;
+    color: var(--text-muted);
+}
+
+.history-item-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.history-item-date {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.history-actions {
+    display: flex;
+    padding: 8px;
+    border-top: 1px solid var(--border-color);
+}
+
+.history-actions button {
+    flex: 1;
+    padding: 6px 0;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 0 4px;
+}
+
+.history-actions button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}

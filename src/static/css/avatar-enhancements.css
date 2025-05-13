@@ -1,0 +1,56 @@
+/* Avatar Panel Enhancements */
+
+/* Ensure panel-content takes full height and has proper layout */
+#avatar-panel .panel-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 42px); /* Full height minus header */
+}
+
+/* Make the avatar container fill available space */
+#avatar-panel .avatar-container {
+    flex: 1;
+    min-height: 260px;
+    margin-bottom: 0;
+}
+
+/* Style the control buttons at the bottom */
+#avatar-panel .avatar-controls-bottom button {
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-color);
+}
+
+#avatar-panel .avatar-controls-bottom button:hover {
+    transform: scale(1.1);
+}
+
+#avatar-panel .avatar-controls-bottom button:active {
+    transform: scale(0.95);
+}
+
+/* Mute button styles */
+#mute-button .fa-volume-mute {
+    color: var(--accent-color);
+}
+
+/* Replay button styles */
+#replay-button:hover {
+    color: var(--accent-color);
+}
+
+/* Audio visualization enhancements */
+.audio-visualization {
+    height: 36px;
+    border: 1px solid var(--border-color);
+}
+
+.audio-waves .wave {
+    transition: height 0.1s ease;
+}
+
+/* Voice select dropdown styling */
+.voice-select {
+    height: 36px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-lighter);
+}

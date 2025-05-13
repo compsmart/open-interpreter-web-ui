@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Interpreter Web GUI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/models.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/message-controls.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/keyboard-shortcuts.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/speech-panel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/code-panel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/code-output-panel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/new-panel-layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/future-panels.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/avatar-enhancements.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+
+    <!-- Import map for TalkingHead and dependencies -->
+    <script type="importmap">
+    { "imports":
+      {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+        "three/examples/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/",
+        "dompurify": "https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.es.mjs",
+        "marked": "https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.esm.js",
+        "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.1/modules/talkinghead.mjs"
+      }
+    }
+    </script>
+
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Top navigation bar -->
+        <header class="top-navbar">
+            <div class="left-section">
+                <div class="tooltip-wrapper">
+                    <button id="toggle-sidebar" class="icon-btn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <span class="tooltiptext">Toggle Sidebar</span>
+                </div>
+                <div class="navbar-title">Open Interpreter</div>
+            </div>
+            <div class="right-section">
+                <!-- Panel toggle buttons will be inserted here by JavaScript -->
+                <button id="navbar-new-chat" class="action-btn-sm"><i class="fas fa-plus"></i> New Chat</button>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <div class="main-container">
+            <!-- Collapsible settings sidebar -->
+            <aside class="sidebar collapsed" id="sidebar">
+                <div class="brand">
+                    <h1><span class="brand-dot">●</span> Open Interpreter</h1>
+                </div>
+                <div class="sidebar-content">
+                    <button id="new-chat" class="action-btn"><i class="fas fa-plus"></i> New Chat</button>
+                    <div class="settings-section">
+                        <h2>Settings</h2>
+                        <div class="setting">
+                            <label for="model-select">Model</label>
+                            <select id="model-select">
+
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                <option value="gpt-4">GPT-4</option>
+                                <option value="gpt-4o">GPT-4o</option>
+                                <option value="claude-3-7-sonnet-20250219">Claude 3.7</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        <div class="setting custom-settings" style="display: none;">
+                            <label for="api-base">API Base</label>
+                            <input type="text" id="api-base" value="http://192.168.1.118:1234/v1">
+                            <div class="api-hint">
+                                <small>API endpoint that follows OpenAI API format</small>
+                            </div>
+                            <div class="available-models-section" style="margin-top: 12px;">
+                                <div class="section-label">Available models:</div>
+                                <div id="available-models-list" class="models-list">
+                                    <div class="loading-models">Checking for available models...</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="setting">
+                            <label for="context-window">Context Window</label>
+                            <input type="number" id="context-window" value="8000">
+                        </div>
+                        <div class="setting">
+                            <label for="max-tokens">Max Tokens</label>
+                            <input type="number" id="max-tokens" value="1000">
+                        </div>
+                        <div class="setting checkbox">
+                            <label for="auto-run">Auto Run Code</label>
+                            <input type="checkbox" id="auto-run" checked>
+                        </div>
+                        <button id="apply-settings" class="action-btn"><i class="fas fa-check"></i> Apply
+                            Settings</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Content area with chat and right-side collapsible panels -->
+            <div class="content-area">
+                <!-- Chat panel (left side) -->
+                <div class="chat-panel">
+                    <div class="chat-container" id="chat-container">
+                        <div class="welcome-message">
+                            <h2>Welcome to Open Interpreter Web GUI</h2>
+                            <p>Start a conversation by typing a message below.</p>
+                        </div>
+                    </div>
+                    <div class="input-area">
+                        <textarea id="user-input" placeholder="Send a message..."></textarea>
+                        <button id="send-button"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+                <!-- Right-side panels container -->
+                <div class="panels-container" id="panels-container">
+
+                    <!-- Avatar Panel -->
+                    <div class="panel hidden" id="avatar-panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-robot"></i> AI Avatar</h3>
+                            <div class="panel-controls">
+                                <button class="icon-btn panel-pop-out-btn" title="Open in New Window">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                                <button class="icon-btn panel-toggle-btn" title="Close Panel">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="panel-content">
+                            <div class="avatar-container">
+                                <div id="avatar-display"></div>
+                                <div id="avatar-loading">Loading avatar...</div>
+                            </div>
+                            <div class="avatar-controls">
+                                <div class="avatar-controls-top">
+                                    <select id="voice-select" class="voice-select">
+                                        <option value="alloy">Alloy</option>
+                                        <option value="echo">Echo</option>
+                                        <option value="fable">Fable</option>
+                                        <option value="onyx">Onyx</option>
+                                        <option value="nova">Nova</option>
+                                        <option value="shimmer">Shimmer</option>
+                                    </select>
+                                    <div class="audio-visualization" id="audio-visualization">
+                                        <div class="audio-placeholder-text">No audio playing</div>
+                                        <div class="audio-waves">
+                                            <div class="wave"></div>
+                                            <div class="wave"></div>
+                                            <div class="wave"></div>
+                                            <div class="wave"></div>
+                                            <div class="wave"></div>
+                                            <div class="wave"></div>
+                                            <div class="wave"></div>
+                                            <div class="wave"></div>
+                                            <div class="wave"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="avatar-controls-bottom">
+                                    <div class="tooltip-wrapper">
+                                        <button id="replay-button" class="icon-btn">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <span class="tooltiptext">Replay Last Speech</span>
+                                    </div>
+                                    <div class="tooltip-wrapper">
+                                        <button id="mute-button" class="icon-btn">
+                                            <i class="fas fa-volume-up"></i>
+                                        </button>
+                                        <span class="tooltiptext">Toggle Text-to-Speech</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Combined Code and Output Panel -->
+                    <div class="panel code-output-panel hidden" id="code-output-panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-code"></i> Code & Output</h3>
+                            <div class="panel-controls">
+                                <button id="debug-code-chunks" class="icon-btn" title="Debug Code Chunks">
+                                    <i class="fas fa-bug"></i>
+                                </button>
+                                <button id="clear-code-panel" class="icon-btn" title="Clear">
+                                    <i class="fas fa-eraser"></i>
+                                </button>
+                                <button class="icon-btn panel-pop-out-btn" title="Open in New Window">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                                <button class="icon-btn panel-toggle-btn" title="Close Panel">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="panel-content">
+                            <!-- Code Section (Top Half) -->
+                            <div class="code-section">
+                                <div class="section-title">Code</div>
+                                <div class="code-container">
+                                    <div id="code-line-numbers" class="line-numbers"></div>
+                                    <pre id="code-content" class="code-block"></pre>
+                                </div>
+                            </div>
+
+                            <!-- Output Section (Bottom Half) -->
+                            <div class="output-section">
+                                <div class="section-title">Output</div>
+                                <div class="output-container">
+                                    <pre id="output-content" class="output-block"></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Knowledge Base Panel (Future Integration) -->
+                    <div class="panel hidden" id="knowledge-panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-book"></i> Knowledge Base</h3>
+                            <div class="panel-controls">
+                                <button class="icon-btn panel-pop-out-btn" title="Open in New Window">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                                <button class="icon-btn panel-toggle-btn" title="Close Panel">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="panel-content">
+                            <div class="knowledge-search">
+                                <input type="text" placeholder="Search knowledge base..." id="knowledge-search-input">
+                                <button id="knowledge-search-btn"><i class="fas fa-search"></i></button>
+                            </div>
+                            <div class="knowledge-list" id="knowledge-list">
+                                <div class="knowledge-item">
+                                    <div class="knowledge-item-title">Coming Soon</div>
+                                    <div class="knowledge-item-preview">Knowledge base integration will be available in
+                                        a future update.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat History Panel (Future Integration) -->
+                    <div class="panel hidden" id="history-panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-history"></i> Chat History</h3>
+                            <div class="panel-controls">
+                                <button class="icon-btn panel-pop-out-btn" title="Open in New Window">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                                <button class="icon-btn panel-toggle-btn" title="Close Panel">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="panel-content">
+                            <div class="history-list" id="history-list">
+                                <div class="history-item">
+                                    <i class="fas fa-comment"></i>
+                                    <div class="history-item-title">Coming Soon</div>
+                                    <div class="history-item-date">Future Update</div>
+                                </div>
+                            </div>
+                            <div class="history-actions">
+                                <button id="clear-history"><i class="fas fa-trash"></i> Clear</button>
+                                <button id="export-history"><i class="fas fa-file-export"></i> Export</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Help Overlay -->
+    <div class="shortcuts-overlay" id="shortcuts-overlay">
+        <div class="shortcuts-container">
+            <div class="shortcuts-header">
+                <h2><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h2>
+                <button class="shortcuts-close" id="shortcuts-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="shortcuts-body">
+                <div class="shortcuts-section">
+                    <h3>Message Controls</h3>
+                    <div class="shortcut-item">
+                        <div class="shortcut-description">Delete current message</div>
+                        <div class="shortcut-keys">
+                            <span class="key">Alt</span>
+                            <span class="key separator">+</span>
+                            <span class="key">D</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-item">
+                        <div class="shortcut-description">Resend message</div>
+                        <div class="shortcut-keys">
+                            <span class="key">Alt</span>
+                            <span class="key separator">+</span>
+                            <span class="key">R</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shortcuts-section">
+                    <h3>Navigation</h3>
+                    <div class="shortcut-item">
+                        <div class="shortcut-description">New conversation</div>
+                        <div class="shortcut-keys">
+                            <span class="key">Alt</span>
+                            <span class="key separator">+</span>
+                            <span class="key">N</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-item">
+                        <div class="shortcut-description">Toggle sidebar</div>
+                        <div class="shortcut-keys">
+                            <span class="key">Alt</span>
+                            <span class="key separator">+</span>
+                            <span class="key">S</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-item">
+                        <div class="shortcut-description">Show keyboard shortcuts</div>
+                        <div class="shortcut-keys">
+                            <span class="key">?</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shortcuts-section">
+                    <h3>Chat</h3>
+                    <div class="shortcut-item">
+                        <div class="shortcut-description">Send message</div>
+                        <div class="shortcut-keys">
+                            <span class="key">Shift</span>
+                            <span class="key separator">+</span>
+                            <span class="key">Enter</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-item">
+                        <div class="shortcut-description">Focus chat input</div>
+                        <div class="shortcut-keys">
+                            <span class="key">/</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <script src="{{ url_for('static', filename='js/keyboard-shortcuts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/layout.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/new-panel-layout.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/panel-popout.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/speech.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+/**
+ * Code Output Panel Styles
+ * Styles for the combined code and output panel with 50/50 split
+ */
+
+/* Container for the combined panel */
+.code-output-panel .panel-content {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Section styles for code and output */
+.code-section, 
+.output-section {
+    display: flex;
+    flex-direction: column;
+    height: 50%; /* Equal split */
+    overflow: hidden;
+    position: relative;
+}
+
+.section-title {
+    padding: 8px 15px;
+    background-color: var(--bg-darker);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.code-container,
+.output-container {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+}
+
+.code-block,
+.output-block {
+    padding: 15px;
+    margin: 0;
+    min-height: 100%;
+    overflow: auto;
+    font-family: monospace;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+.code-block {
+    background-color: var(--code-bg);
+    color: var(--code-text);
+}
+
+.output-block {
+    background-color: var(--output-bg);
+    color: var(--output-text);
+}
+
+/* Line numbers for code section */
+.line-numbers {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 15px 5px 15px 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.5);
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: right;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* Add some resizing handle between code and output */
+.resize-handle {
+    height: 6px;
+    background-color: var(--bg-darker);
+    cursor: row-resize;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resize-handle::after {
+    content: '';
+    width: 30px;
+    height: 2px;
+    background-color: var(--text-muted);
+    border-radius: 1px;
+}
