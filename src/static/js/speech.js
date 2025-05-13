@@ -705,7 +705,7 @@ Analyze the following text and provide:
 4. No markdown or code blocks.
 
 Return your response in JSON format with properties "emotion" and "summary" only:
-{"emotion": "emotion_here", "summary": "<sigh> speech <laugh>"}
+{"emotion": "emotion_here", "summary": "<sigh>speech<laugh>"}
 
 Text to analyze:
 "${text}"
