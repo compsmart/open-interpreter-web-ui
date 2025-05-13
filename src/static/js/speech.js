@@ -734,7 +734,7 @@ Text to analyze:
                 };
             }
             // Parse the completion field which contains a JSON string
-            const { emotion, summary } = JSON.parse(result.completion);
+            const { emotion, summary } = JSON.parse(result.response);
             console.log('[SpeechManager] Emotion and summary extracted:', emotion, summary);
             return {
                 text: summary,

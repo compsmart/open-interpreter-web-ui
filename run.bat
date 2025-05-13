@@ -23,7 +23,6 @@ if %ERRORLEVEL% NEQ 0 (
         exit /b 1
     )
 )
-
 REM Start the server
 echo Starting server...
 cd src

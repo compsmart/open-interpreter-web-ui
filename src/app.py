@@ -7,21 +7,8 @@ import json
 import threading
 import queue
 import sys
-import openai
-from dotenv import load_dotenv
 
 app = Flask(__name__)
-
-# Load environment variables
-load_dotenv()
-
-# Initialize OpenAI client
-openai_api_key = os.getenv('OPENAI_API_KEY', '')
-if not openai_api_key:
-    print("Warning: OPENAI_API_KEY environment variable is not set. OpenAI features will not work.", file=sys.stderr)
-
-# Create the client even if the key is empty - the client will handle authentication errors when used
-openai_client = openai.OpenAI(api_key=openai_api_key)
 
 # Queue for storing messages from interpreter
 message_queue = queue.Queue()
@@ -49,14 +36,16 @@ def settings():
         model = data.get('model')
         if model:
             interpreter.llm.model = model
-            api_base = data.get('api_base')
+            custom = data.get('custom')
             # Handle custom models
-            if api_base:
+            if custom:
                     interpreter.llm.model = 'openai/' + model  # Set model to custom'
                     interpreter.llm.offline = True
-                    interpreter.llm.api_base = api_base
+                    # get LOCAL_MODEL_API_BASE from environment variable
+                    local_api_base = os.environ.get('LOCAL_MODEL_API_BASE')
+                    interpreter.llm.api_base = local_api_base 
                     interpreter.llm.format = "openai"  # Configure chat format for OpenAI compatibility
-                    print(f"Using custom model API base: {api_base}", file=sys.stderr)
+                    print(f"Using custom model API base: {local_api_base}", file=sys.stderr)
             else:
                 # Reset to default API base for hosted models
                 interpreter.llm.api_base = None
@@ -399,59 +388,42 @@ def text_to_speech():
         return jsonify({'error': str(e), 'success': False}), 500        
         traceback.print_exc(file=sys.stderr)
         return jsonify({'error': str(e)}), 500
-
-# OpenAI API endpoints
-@app.route('/openai/models', methods=['GET'])
-def openai_models():
-    """Get available OpenAI models"""
-    if not openai_api_key:
-        return jsonify({"error": "OpenAI API key not configured. Please add your API key to the .env file."}), 401
+@app.route('/openai/completions', methods=['POST'])    
+def completions():
+    """Send prompt to openai completions endpoint"""
+    from openai import OpenAI
+    import os
     
-    try:
-        models = openai_client.models.list()
-        return jsonify({"models": [model.id for model in models.data]})
-    except Exception as e:
-        error_msg = str(e)
-        status_code = 500
-        
-        # Check for common API key errors
-        if "auth" in error_msg.lower() or "api key" in error_msg.lower() or "apikey" in error_msg.lower():
-            error_msg = "Invalid or unauthorized OpenAI API key. Please check your .env file."
-            status_code = 401
-            
-        return jsonify({"error": error_msg}), status_code
+    # Check for API key
+    api_key = os.environ.get('OPENAI_API_KEY')
+    if not api_key:
+        print(f"[Completions] Warning: No OPENAI_API_KEY found in environment variables", file=sys.stderr)
+        return jsonify({'error': 'OpenAI API key not configured', 'success': False}), 500
+    else:
+        print(f"[Completions] Found OPENAI_API_KEY in environment variables (first few chars): {api_key[:4]}...", file=sys.stderr)
+        # Initialize OpenAI client
+        try:
+            data = request.json
+            prompt = data.get('prompt')
+            model = data.get('model', 'gpt-4o-mini')
 
-@app.route('/openai/completions', methods=['POST'])
-def openai_completions():
-    """Send a prompt to OpenAI and get the completion"""
-    try:
-        data = request.json
-        prompt = data.get('prompt')
-        model = data.get('model', 'gpt-4o-mini')
-        temperature = float(data.get('temperature', 0.7))
-        max_tokens = int(data.get('max_tokens', 100))
-        
-        if not prompt:
-            return jsonify({"error": "No prompt provided"}), 400
-        
-        response = openai_client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=temperature,
-            max_tokens=max_tokens
-        )
-        
-        # Get the full response text
-        response_text = response.choices[0].message.content
-        
-        return jsonify({
-            "model": model,
-            "prompt": prompt,
-            "completion": response_text,
-            "total_tokens": response.usage.total_tokens
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+            client = OpenAI(api_key=api_key)
+            # Send prompt to completions endpoint
+            response = client.completions.create(
+                model=model,
+                prompt=prompt,
+                max_tokens=50
+            )
+            # Return the response
+            return jsonify({
+                'success': True,
+                'response': response.choices[0].text.strip()
+            })
+        except Exception as e:
+            print(f"[Completions] Error during API call: {str(e)}", file=sys.stderr)
+            return jsonify({'error': str(e), 'success': False}), 500
+        traceback.print_exc(file=sys.stderr)
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     # Default to port 5000 if not specified

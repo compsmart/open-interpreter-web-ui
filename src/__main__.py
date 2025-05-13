@@ -6,9 +6,8 @@ from dotenv import load_dotenv
 def main():
     """
     Main entry point for running the Open Interpreter Web Bridge
-    """
-    # Load environment variables from .env file if it exists
-    load_dotenv()
+    """    # Load environment variables from parent directory's .env file
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Open Interpreter Web Bridge')
