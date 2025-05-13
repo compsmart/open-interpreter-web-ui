@@ -388,6 +388,97 @@ def text_to_speech():
         return jsonify({'error': str(e), 'success': False}), 500        
         traceback.print_exc(file=sys.stderr)
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/text-to-speech-orpheus', methods=['POST'])
+def text_to_speech_orpheus():
+    """Convert text to speech using Orpheus local API"""
+    try:
+        print(f"[TTS-Orpheus] Text-to-speech API called", file=sys.stderr)
+        
+        data = request.json
+        text = data.get('text')
+        voice = data.get('voice', 'tara')  # Default voice for Orpheus
+        
+        print(f"[TTS-Orpheus] Request data - Voice: {voice}, Text: '{text[:50]}...'", file=sys.stderr)
+        
+        if not text:
+            print(f"[TTS-Orpheus] Error: No text provided", file=sys.stderr)
+            return jsonify({'error': 'No text provided'}), 400
+            
+        import requests
+        import base64
+        import os
+        import time
+        import tempfile
+        
+        # Generate a unique filename for debugging
+        debug_file = os.path.join(tempfile.gettempdir(), f"tts_orpheus_debug_{int(time.time())}.mp3")
+          # Get local API base URL
+        api_base = os.environ.get('ORPEUS_MODEL_API_BASE', 'http://127.0.0.1:5005')
+        
+        # Make sure api_base doesn't have trailing slash
+        api_base = api_base.rstrip('/')
+            
+        orpheus_url = f"{api_base}/v1/audio/speech"
+        print(f"[TTS-Orpheus] Using Orpheus endpoint: {orpheus_url}", file=sys.stderr)
+        
+        # Prepare payload for Orpheus
+        payload = {
+            "input": text,
+            "model": "orpheus-3b-0.1-ft",
+            "voice": "tara",
+            "response_format": "wav",
+            "speed": 1
+        }
+
+        
+        try:
+            # Call Orpheus TTS API
+            print(f"[TTS-Orpheus] Calling Orpheus TTS API with voice: {voice}", file=sys.stderr)
+            start_time = time.time()
+            response = requests.post(orpheus_url, json=payload)
+            
+            # Log timing and check response status
+            duration = time.time() - start_time
+            print(f"[TTS-Orpheus] API call completed in {duration:.2f} seconds", file=sys.stderr)
+            print(f"[TTS-Orpheus] Status code: {response.status_code}", file=sys.stderr)
+            
+            if response.status_code != 200:
+                error_msg = f"Orpheus API returned error: {response.status_code}, {response.text}"
+                print(f"[TTS-Orpheus] {error_msg}", file=sys.stderr)
+                return jsonify({'error': error_msg, 'success': False}), response.status_code
+            
+            # Save to debug file
+            try:
+                with open(debug_file, 'wb') as f:
+                    f.write(response.content)
+                print(f"[TTS-Orpheus] Debug audio saved to {debug_file}", file=sys.stderr)
+                print(f"[TTS-Orpheus] File size: {os.path.getsize(debug_file)} bytes", file=sys.stderr)
+            except Exception as save_error:
+                print(f"[TTS-Orpheus] Error saving debug file: {str(save_error)}", file=sys.stderr)
+            
+            # Get audio data as base64
+            print(f"[TTS-Orpheus] Converting response to base64", file=sys.stderr)
+            audio_data = base64.b64encode(response.content).decode('utf-8')
+            print(f"[TTS-Orpheus] Successfully generated audio data (length: {len(audio_data)})", file=sys.stderr)
+            
+            # Return success response in the same format as OpenAI endpoint
+            print(f"[TTS-Orpheus] Returning success response with audio data", file=sys.stderr)
+            return jsonify({
+                'success': True,
+                'audio': audio_data,
+                'debug_file': debug_file
+            })
+        except Exception as inner_e:
+            print(f"[TTS-Orpheus] Error during API call: {str(inner_e)}", file=sys.stderr)
+            return jsonify({'error': str(inner_e), 'success': False}), 500
+            
+    except Exception as e:
+        import traceback
+        print(f"[TTS-Orpheus] Error in text-to-speech-orpheus: {str(e)}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
+        return jsonify({'error': str(e), 'success': False}), 500
+        
 @app.route('/openai/completions', methods=['POST'])    
 def completions():
     """Send prompt to openai completions endpoint"""

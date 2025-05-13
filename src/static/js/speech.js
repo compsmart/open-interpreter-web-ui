@@ -409,7 +409,7 @@ class SpeechManager {
 
         try {
             console.log('[SpeechManager] Requesting TTS from API...');
-            const response = await fetch('/api/text-to-speech', {
+            const response = await fetch('/api/text-to-speech-orpheus', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: humanSpeech.text, voice: nextItem.voice })
@@ -699,12 +699,13 @@ class SpeechManager {
 
             const prompt = `
 Analyze the following text and provide:
-1. A primary emotion that best represents the tone (One of: happy, sad, angry, fear, disgust, love, neutral)
-2. Change the text to a concise human like response.
-3. No markdown or code blocks.
+1. Change the provided text to the way a human would say it.
+2. You can use the following emotion tags where appropriate <laugh>, <sigh>, <chuckle>, <cough>, <sniffle>, <groan>, <yawn>, <gasp>
+3. Choose primary emotion that best represents the tone (One of: happy, sad, angry, fear, disgust, love, neutral)
+4. No markdown or code blocks.
 
 Return your response in JSON format with properties "emotion" and "summary" only:
-{"emotion": "emotion_here", "summary": "summary_here"}
+{"emotion": "emotion_here", "summary": "<sigh> speech <laugh>"}
 
 Text to analyze:
 "${text}"
